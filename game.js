@@ -1,3 +1,22 @@
+window.changeBet = function(amount){
+
+    if(typeof freeSpins !== "undefined" && freeSpins > 0){
+        return;
+    }
+
+    bet += amount;
+
+    if(bet < 10){
+        bet = 10;
+    }
+
+    if(bet > 500){
+        bet = 500;
+    }
+
+    document.getElementById("bet").innerHTML = bet;
+
+};
 const symbols = [
 "🍊",
 "🍋",
