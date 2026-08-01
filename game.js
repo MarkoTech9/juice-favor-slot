@@ -22,12 +22,13 @@ let multiplier=1;
 
 const slot=document.getElementById("slot");
 
+if(spin){
 
-spin.onclick=function(){
+    spin.onclick = function(){
+        playSpin();
+    };
 
-playSpin();
-
-};
+}
 
 
 
