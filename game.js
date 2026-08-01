@@ -1,3 +1,18 @@
+const symbols = [
+"🍊",
+"🍋",
+"🍉",
+"🍒",
+"🍍",
+"⭐",
+"💎",
+"WILD",
+"SCATTER"
+];
+
+
+const spin = document.getElementById("spin");
+const message = document.getElementById("message");
 let credits=1000;
 let bet=20;
 
@@ -225,15 +240,3 @@ message.innerHTML=
 
 
 }
-
-const symbols = [
-"🍊",
-"🍋",
-"🍉",
-"🍒",
-"🍍",
-"⭐",
-"💎",
-"WILD",
-"SCATTER"
-];
