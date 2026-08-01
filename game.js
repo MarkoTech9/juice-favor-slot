@@ -1,5 +1,4 @@
 const symbols = [
-
 "🍊",
 "🍋",
 "🍉",
@@ -9,16 +8,21 @@ const symbols = [
 "💎",
 "WILD",
 "SCATTER"
-
 ];
+
+
+const reels = 5;
+const rows = 4;
 
 
 let credits = 1000;
 let bet = 20;
 
+let freeSpins = 0;
+let freeMultiplier = 1;
 
-const reels = 5;
-const rows = 4;
+let juiceMeter = 0;
+
 
 
 document.getElementById("spin")
@@ -28,52 +32,64 @@ document.getElementById("spin")
 
 function changeBet(amount){
 
+    if(freeSpins>0) return;
+
     bet += amount;
 
     if(bet < 10)
         bet = 10;
 
 
-    document.getElementById("bet")
-    .innerHTML = bet;
+    document.getElementById("bet").innerHTML = bet;
 
 }
 
 
 
+
 function randomSymbol(){
+
+    let chance=Math.random();
+
+
+    // More rare scatters
+    if(chance < .04)
+        return "SCATTER";
+
+
+    if(chance < .10)
+        return "WILD";
+
 
     return symbols[
         Math.floor(
-            Math.random()*symbols.length
-        )
+        Math.random()*7)
     ];
 
 }
 
 
 
-function createGrid(){
 
+function createGrid(){
 
 let grid=[];
 
 
 for(let r=0;r<rows;r++){
 
-    grid[r]=[];
+grid[r]=[];
 
-    for(let c=0;c<reels;c++){
+for(let c=0;c<reels;c++){
 
-        grid[r][c]=randomSymbol();
+grid[r][c]=randomSymbol();
 
-    }
+}
 
 }
 
 
 return grid;
-
 
 }
 
@@ -82,7 +98,6 @@ return grid;
 
 function display(grid){
 
-
 let slot=document.getElementById("slot");
 
 slot.innerHTML="";
@@ -90,53 +105,73 @@ slot.innerHTML="";
 
 for(let r=0;r<rows;r++){
 
-    for(let c=0;c<reels;c++){
+for(let c=0;c<reels;c++){
 
 
-        let div=document.createElement("div");
+let div=document.createElement("div");
 
-        div.className="symbol";
+div.className="symbol";
 
-        div.innerHTML=grid[r][c];
+div.innerHTML=grid[r][c];
 
 
-        slot.appendChild(div);
-
-    }
-
-}
+slot.appendChild(div);
 
 
 }
 
+}
+
+}
 
 
 
-function checkWins(grid){
+
+function countScatter(grid){
+
+let count=0;
+
+
+grid.flat().forEach(s=>{
+
+if(s==="SCATTER")
+count++;
+
+});
+
+
+return count;
+
+}
+
+
+
+
+
+function calculateWin(grid){
 
 
 let win=0;
-
-let multiplier=1;
-
 
 
 for(let r=0;r<rows;r++){
 
 
-let line=grid[r];
+let row=grid[r];
 
 
-let first=line[0];
-
+let symbol=row[0];
 
 let count=1;
 
 
 for(let i=1;i<reels;i++){
 
-if(line[i]===first)
+
+if(row[i]===symbol ||
+row[i]==="WILD")
 count++;
+
 
 }
 
@@ -144,10 +179,67 @@ count++;
 
 if(count>=3){
 
-let value=count*5;
+
+win += count*5;
 
 
-win+=value;
+}
+
+}
+
+
+
+let juiceRoll=Math.random();
+
+
+
+if(juiceRoll<0.10){
+
+let juiceMultiplier=2;
+
+
+if(juiceRoll<0.03)
+juiceMultiplier=5;
+
+
+win*=juiceMultiplier;
+
+
+document.getElementById("message")
+.innerHTML +=
+"<br>🍊 JUICE x"+juiceMultiplier;
+
+}
+
+
+
+return win;
+
+}
+
+
+
+
+
+function activateBonus(grid){
+
+
+let scatters=countScatter(grid);
+
+
+
+if(scatters>=3){
+
+
+freeSpins=10;
+
+
+freeMultiplier=1;
+
+
+document.getElementById("message")
+.innerHTML =
+"🎁 FREE SPINS ACTIVATED!";
 
 }
 
@@ -157,24 +249,14 @@ win+=value;
 
 
 
-let juice=Math.random();
 
 
-if(juice<0.15){
-
-multiplier=2;
-
-}
-
-if(juice<0.05){
-
-multiplier=5;
-
-}
+function updateUI(){
 
 
+document.getElementById("credits")
+.innerHTML=credits;
 
-return win*multiplier;
 
 
 }
@@ -183,6 +265,10 @@ return win*multiplier;
 
 
 function spin(){
+
+
+
+if(freeSpins<=0){
 
 
 if(credits<bet){
@@ -194,8 +280,11 @@ return;
 }
 
 
-
 credits-=bet;
+
+
+}
+
 
 
 let grid=createGrid();
@@ -204,7 +293,38 @@ let grid=createGrid();
 display(grid);
 
 
-let win=checkWins(grid);
+
+let win=calculateWin(grid);
+
+
+
+activateBonus(grid);
+
+
+
+
+
+if(freeSpins>0){
+
+
+freeSpins--;
+
+
+freeMultiplier++;
+
+
+win*=freeMultiplier;
+
+
+
+document.getElementById("message")
+.innerHTML +=
+"<br>🔥 FREE SPIN x"
++freeMultiplier;
+
+
+}
+
 
 
 
@@ -212,28 +332,49 @@ credits+=win;
 
 
 
-document.getElementById("credits")
-.innerHTML=credits;
+updateUI();
+
 
 
 
 if(win>0){
 
-
 document.getElementById("message")
-.innerHTML=
-"🍊 JUICE WIN! +" 
-+ win;
-
+.innerHTML =
+"💰 WIN +"+win;
 
 }
 
 else{
 
 
+juiceMeter++;
+
+
 document.getElementById("message")
-.innerHTML=
-"Try again!";
+.innerHTML =
+"💧 Juice Charge "
++juiceMeter+"/10";
+
+
+}
+
+
+
+
+
+if(juiceMeter>=10){
+
+
+freeMultiplier+=2;
+
+
+juiceMeter=0;
+
+
+document.getElementById("message")
+.innerHTML +=
+"<br>⚡ JUICE BOOST READY x2";
 
 
 }
