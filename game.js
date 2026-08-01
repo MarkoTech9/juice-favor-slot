@@ -1,175 +1,156 @@
-const symbols = [
-"🍊",
-"🍋",
-"🍉",
-"🍒",
-"🍍",
-"⭐",
-"💎",
-"WILD",
-"SCATTER"
+let credits=1000;
+let bet=20;
+
+let freeSpins=0;
+let multiplier=1;
+
+
+const slot=document.getElementById("slot");
+
+
+spin.onclick=function(){
+
+playSpin();
+
+};
+
+
+
+function playSpin(){
+
+
+if(freeSpins<=0){
+
+if(credits<bet)
+return;
+
+
+credits-=bet;
+
+}
+
+
+animate();
+
+
+setTimeout(()=>{
+
+
+let grid=spinReels();
+
+
+display(grid);
+
+
+let result=evaluate(grid);
+
+
+credits+=result;
+
+
+document.getElementById("credits")
+.innerHTML=credits;
+
+
+if(result>0){
+
+showWin(result);
+
+}
+
+
+
+},800);
+
+
+
+}
+
+
+
+
+function animate(){
+
+
+slot.innerHTML="";
+
+
+for(let i=0;i<20;i++){
+
+let div=document.createElement("div");
+
+div.className="symbol";
+
+div.innerHTML=
+symbols[
+Math.floor(Math.random()*symbols.length)
 ];
 
 
-const reels = 5;
-const rows = 4;
-
-
-let credits = 1000;
-let bet = 20;
-
-let freeSpins = 0;
-let freeMultiplier = 1;
-
-let juiceMeter = 0;
-
-
-
-document.getElementById("spin")
-.onclick = spin;
-
-
-
-function changeBet(amount){
-
-    if(freeSpins>0) return;
-
-    bet += amount;
-
-    if(bet < 10)
-        bet = 10;
-
-
-    document.getElementById("bet").innerHTML = bet;
+slot.appendChild(div);
 
 }
 
 
-
-
-function randomSymbol(){
-
-    let chance=Math.random();
-
-
-    // More rare scatters
-    if(chance < .04)
-        return "SCATTER";
-
-
-    if(chance < .10)
-        return "WILD";
-
-
-    return symbols[
-        Math.floor(
-        Math.random()*7)
-    ];
-
 }
 
-
-
-
-function createGrid(){
-
-let grid=[];
-
-
-for(let r=0;r<rows;r++){
-
-grid[r]=[];
-
-for(let c=0;c<reels;c++){
-
-grid[r][c]=randomSymbol();
-
-}
-
-}
-
-
-return grid;
-
-}
 
 
 
 
 function display(grid){
 
-let slot=document.getElementById("slot");
 
 slot.innerHTML="";
 
 
-for(let r=0;r<rows;r++){
+grid.forEach(row=>{
 
-for(let c=0;c<reels;c++){
+
+row.forEach(symbol=>{
 
 
 let div=document.createElement("div");
 
 div.className="symbol";
 
-div.innerHTML=grid[r][c];
+div.innerHTML=symbol;
 
 
 slot.appendChild(div);
 
 
-}
+});
 
-}
-
-}
-
-
-
-
-function countScatter(grid){
-
-let count=0;
-
-
-grid.flat().forEach(s=>{
-
-if(s==="SCATTER")
-count++;
 
 });
 
 
-return count;
-
 }
 
 
 
 
-
-function calculateWin(grid){
-
-
-let win=0;
+function evaluate(grid){
 
 
-for(let r=0;r<rows;r++){
+let total=0;
 
 
-let row=grid[r];
+grid.forEach(row=>{
 
 
-let symbol=row[0];
+let first=row[0];
 
 let count=1;
 
 
-for(let i=1;i<reels;i++){
+for(let i=1;i<5;i++){
 
 
-if(row[i]===symbol ||
-row[i]==="WILD")
+if(row[i]==first ||
+row[i].includes("WILD"))
+
 count++;
 
 
@@ -179,206 +160,68 @@ count++;
 
 if(count>=3){
 
-
-win += count*5;
-
-
-}
+total+=count*bet;
 
 }
 
 
-
-let juiceRoll=Math.random();
-
+});
 
 
-if(juiceRoll<0.10){
 
-let juiceMultiplier=2;
-
-
-if(juiceRoll<0.03)
-juiceMultiplier=5;
+let wildMultiplier=1;
 
 
-win*=juiceMultiplier;
+
+grid.flat().forEach(s=>{
 
 
-document.getElementById("message")
-.innerHTML +=
-"<br>🍊 JUICE x"+juiceMultiplier;
+if(s.includes("x2"))
+wildMultiplier*=2;
+
+
+if(s.includes("x3"))
+wildMultiplier*=3;
+
+
+});
+
+
+
+total*=wildMultiplier;
+
+
+
+if(total>500){
+
+message.innerHTML=
+"🔥 EPIC JUICE WIN 🔥";
+
 
 }
 
+else if(total>100){
 
-
-return win;
-
-}
-
-
-
-
-
-function activateBonus(grid){
-
-
-let scatters=countScatter(grid);
-
-
-
-if(scatters>=3){
-
-
-freeSpins=10;
-
-
-freeMultiplier=1;
-
-
-document.getElementById("message")
-.innerHTML =
-"🎁 FREE SPINS ACTIVATED!";
-
-}
-
+message.innerHTML=
+"💥 BIG JUICE WIN 💥";
 
 
 }
 
 
 
-
-
-function updateUI(){
-
-
-document.getElementById("credits")
-.innerHTML=credits;
-
-
+return total;
 
 }
 
 
 
 
-function spin(){
+function showWin(amount){
 
 
-
-if(freeSpins<=0){
-
-
-if(credits<bet){
-
-alert("Not enough credits");
-
-return;
-
-}
-
-
-credits-=bet;
-
-
-}
-
-
-
-let grid=createGrid();
-
-
-display(grid);
-
-
-
-let win=calculateWin(grid);
-
-
-
-activateBonus(grid);
-
-
-
-
-
-if(freeSpins>0){
-
-
-freeSpins--;
-
-
-freeMultiplier++;
-
-
-win*=freeMultiplier;
-
-
-
-document.getElementById("message")
-.innerHTML +=
-"<br>🔥 FREE SPIN x"
-+freeMultiplier;
-
-
-}
-
-
-
-
-credits+=win;
-
-
-
-updateUI();
-
-
-
-
-if(win>0){
-
-document.getElementById("message")
-.innerHTML =
-"💰 WIN +"+win;
-
-}
-
-else{
-
-
-juiceMeter++;
-
-
-document.getElementById("message")
-.innerHTML =
-"💧 Juice Charge "
-+juiceMeter+"/10";
-
-
-}
-
-
-
-
-
-if(juiceMeter>=10){
-
-
-freeMultiplier+=2;
-
-
-juiceMeter=0;
-
-
-document.getElementById("message")
-.innerHTML +=
-"<br>⚡ JUICE BOOST READY x2";
-
-
-}
-
+message.innerHTML=
+"🍊 WIN +"+amount;
 
 
 }
