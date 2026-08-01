@@ -225,3 +225,15 @@ message.innerHTML=
 
 
 }
+
+const symbols = [
+"🍊",
+"🍋",
+"🍉",
+"🍒",
+"🍍",
+"⭐",
+"💎",
+"WILD",
+"SCATTER"
+];
