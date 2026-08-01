@@ -1,0 +1,64 @@
+body {
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+
+h1 {
+    font-size:50px;
+    color:#ffb300;
+}
+
+
+.panel {
+    margin:10px;
+    font-size:22px;
+}
+
+
+#slot {
+
+    width:500px;
+    margin:30px auto;
+
+    display:grid;
+    grid-template-columns:
+    repeat(5,90px);
+
+    gap:5px;
+}
+
+
+.symbol {
+
+    height:90px;
+    background:#222;
+
+    border:2px solid #555;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:40px;
+}
+
+
+button {
+
+    padding:15px 40px;
+    font-size:25px;
+
+    cursor:pointer;
+}
+
+
+#message {
+
+    margin-top:20px;
+    font-size:28px;
+
+    color:#00ff99;
+}
