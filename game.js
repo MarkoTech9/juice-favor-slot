@@ -241,3 +241,21 @@ message.innerHTML=
 
 
 }
+function changeBet(amount){
+
+    if(freeSpins > 0){
+        return;
+    }
+
+    bet += amount;
+
+    if(bet < 10){
+        bet = 10;
+    }
+
+    if(bet > 500){
+        bet = 500;
+    }
+
+    document.getElementById("bet").innerHTML = bet;
+}
