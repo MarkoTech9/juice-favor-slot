@@ -1,280 +1,219 @@
-window.changeBet = function(amount){
+const symbols = [
+    "🍊",
+    "🍋",
+    "🍉",
+    "🍒",
+    "🍍",
+    "⭐",
+    "💎",
+    "WILD",
+    "SCATTER"
+];
 
-    if(typeof freeSpins !== "undefined" && freeSpins > 0){
-        return;
-    }
+let credits = 1000;
+let bet = 20;
+
+let freeSpins = 0;
+let freeMultiplier = 1;
+
+
+const slot = document.getElementById("slot");
+const message = document.getElementById("message");
+const creditsDisplay = document.getElementById("credits");
+const betDisplay = document.getElementById("bet");
+const spinButton = document.getElementById("spin");
+
+
+window.changeBet = function(amount){
 
     bet += amount;
 
-    if(bet < 10){
+    if(bet < 10)
         bet = 10;
-    }
 
-    if(bet > 500){
+    if(bet > 500)
         bet = 500;
-    }
 
-    document.getElementById("bet").innerHTML = bet;
+    betDisplay.innerHTML = bet;
 
 };
-const symbols = [
-"🍊",
-"🍋",
-"🍉",
-"🍒",
-"🍍",
-"⭐",
-"💎",
-"WILD",
-"SCATTER"
-];
 
 
-const spin = document.getElementById("spin");
-const message = document.getElementById("message");
-let credits=1000;
-let bet=20;
 
-let freeSpins=0;
-let multiplier=1;
+spinButton.onclick = function(){
+
+    spin();
+
+};
 
 
-const slot=document.getElementById("slot");
 
-if(spin){
+function randomSymbol(){
 
-    spin.onclick = function(){
-        playSpin();
-    };
+    let r = Math.random();
+
+    if(r < 0.05)
+        return "SCATTER";
+
+    if(r < 0.12)
+        return "WILD";
+
+    return symbols[
+        Math.floor(Math.random()*7)
+    ];
 
 }
 
 
 
-function playSpin(){
+function spin(){
+
+    if(credits < bet){
+
+        message.innerHTML="Not enough credits";
+        return;
+
+    }
 
 
-if(freeSpins<=0){
-
-if(credits<bet)
-return;
+    credits -= bet;
 
 
-credits-=bet;
-
-}
+    let grid=[];
 
 
-animate();
+    for(let row=0; row<4; row++){
+
+        grid[row]=[];
+
+        for(let col=0; col<5; col++){
+
+            grid[row][col]=randomSymbol();
+
+        }
+
+    }
 
 
-setTimeout(()=>{
+    display(grid);
 
 
-let grid=spinReels();
+    let win = calculateWin(grid);
 
 
-display(grid);
+    credits += win;
 
 
-let result=evaluate(grid);
+    creditsDisplay.innerHTML=credits;
 
 
-credits+=result;
+    if(win){
 
+        message.innerHTML=
+        "🍊 JUICE WIN +"+win;
 
-document.getElementById("credits")
-.innerHTML=credits;
+    }else{
 
+        message.innerHTML=
+        "No win";
 
-if(result>0){
+    }
 
-showWin(result);
-
-}
-
-
-
-},800);
-
-
-
-}
-
-
-
-
-function animate(){
-
-
-slot.innerHTML="";
-
-
-for(let i=0;i<20;i++){
-
-let div=document.createElement("div");
-
-div.className="symbol";
-
-div.innerHTML=
-symbols[
-Math.floor(Math.random()*symbols.length)
-];
-
-
-slot.appendChild(div);
-
-}
 
 
 }
-
-
 
 
 
 function display(grid){
 
-
-slot.innerHTML="";
-
-
-grid.forEach(row=>{
+    slot.innerHTML="";
 
 
-row.forEach(symbol=>{
+    grid.forEach(row=>{
+
+        row.forEach(symbol=>{
 
 
-let div=document.createElement("div");
+            let box=document.createElement("div");
 
-div.className="symbol";
+            box.className="symbol";
 
-div.innerHTML=symbol;
+            box.innerHTML=symbol;
 
-
-slot.appendChild(div);
-
-
-});
+            slot.appendChild(box);
 
 
-});
+        });
+
+    });
 
 
 }
 
 
 
+function calculateWin(grid){
 
-function evaluate(grid){
-
-
-let total=0;
+    let win=0;
 
 
-grid.forEach(row=>{
+    grid.forEach(row=>{
 
 
-let first=row[0];
+        let first=row[0];
 
-let count=1;
-
-
-for(let i=1;i<5;i++){
+        let count=1;
 
 
-if(row[i]==first ||
-row[i].includes("WILD"))
-
-count++;
+        for(let i=1;i<5;i++){
 
 
-}
+            if(row[i]===first ||
+               row[i]==="WILD"){
+
+                count++;
+
+            }
 
 
-
-if(count>=3){
-
-total+=count*bet;
-
-}
+        }
 
 
-});
+        if(count>=3){
+
+            win += count * bet;
+
+        }
 
 
-
-let wildMultiplier=1;
+    });
 
 
 
-grid.flat().forEach(s=>{
+    let multiplier=1;
 
 
-if(s.includes("x2"))
-wildMultiplier*=2;
+    let roll=Math.random();
 
 
-if(s.includes("x3"))
-wildMultiplier*=3;
+    if(roll < .10)
+        multiplier=2;
 
 
-});
-
-
-
-total*=wildMultiplier;
+    if(roll < .03)
+        multiplier=5;
 
 
 
-if(total>500){
+    if(multiplier>1){
 
-message.innerHTML=
-"🔥 EPIC JUICE WIN 🔥";
+        message.innerHTML=
+        "🍊 JUICE x"+multiplier;
 
-
-}
-
-else if(total>100){
-
-message.innerHTML=
-"💥 BIG JUICE WIN 💥";
-
-
-}
-
-
-
-return total;
-
-}
-
-
-
-
-function showWin(amount){
-
-
-message.innerHTML=
-"🍊 WIN +"+amount;
-
-
-}
-function changeBet(amount){
-
-    if(freeSpins > 0){
-        return;
     }
 
-    bet += amount;
 
-    if(bet < 10){
-        bet = 10;
-    }
+    return win*multiplier;
 
-    if(bet > 500){
-        bet = 500;
-    }
-
-    document.getElementById("bet").innerHTML = bet;
 }
